@@ -1,0 +1,18 @@
+{
+    "files.associations": {
+        "ostream": "c",
+        "vbo.h": "c",
+        "glad.h": "c",
+        "*.ipp": "c",
+        "optional": "c",
+        "ratio": "c",
+        "system_error": "c",
+        "array": "c",
+        "functional": "c",
+        "tuple": "c",
+        "type_traits": "c",
+        "utility": "c",
+        "variant": "c",
+        "particle.h": "c"
+    }
+}
