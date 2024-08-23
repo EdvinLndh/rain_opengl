@@ -9,6 +9,7 @@
 #include "vbo.h"
 #include "shader.h"
 #include "texture.h"
+#include "gfx.h"
 #include "particle.h"
 #include "util.h"
 
@@ -23,9 +24,7 @@ void create_particles();
 
 void toggle_mouse_capture(GLFWwindow *window);
 
-// The Width of the screen
 const unsigned int SCREEN_WIDTH = 800;
-// The height of the screen
 const unsigned int SCREEN_HEIGHT = 600;
 
 float lastX = SCREEN_WIDTH / 2.0f;
@@ -37,11 +36,13 @@ bool mouse_captured = true;
 
 bool keys[1024];
 
-Camera *c = NULL;
+// Camera *c = NULL;
 
 ParticleSystem **particleSystems = NULL; // Dynamic array of ParticleSystem pointers
 unsigned int particleSystemCount = 0;    // Number of currently active ParticleSystems
 unsigned int particleSystemCapacity = 0;
+
+GfxSystem *gfx; 
 
 int main()
 {
@@ -78,43 +79,23 @@ int main()
 
     imgui_init(window, "#version 130");
 
-    // glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_DEPTH_TEST);
 
     float deltaTime = 0.0f;
     float lastFrame = 0.0f;
 
-    c = camera_create();
+    // c = camera_create();
+    gfx = malloc(sizeof(GfxSystem));
+    gfx_init(gfx);
+    
+    // float planeVertices[] = {
+    //     // positions          // texture Coords (note we set these higher than 1 (together with GL_REPEAT as texture wrapping mode). this will cause the floor texture to repeat)
+    //     5.0f, -0.5f, 5.0f, 2.0f, 0.0f,
+    //     -5.0f, -0.5f, 5.0f, 0.0f, 0.0f,
+    //     -5.0f, -0.5f, -5.0f, 0.0f, 2.0f,
 
-    Shader texture_shader = compile("shaders/shader.vs", "shaders/shader.fs", NULL);
-    Shader pshader = compile("shaders/particleshader.vs", "shaders/particleshader.fs", NULL);
-    Shader skyboxShader = compile("shaders/skyshader.vs", "shaders/skyshader.fs", NULL);
-
-    float planeVertices[] = {
-        // positions          // texture Coords (note we set these higher than 1 (together with GL_REPEAT as texture wrapping mode). this will cause the floor texture to repeat)
-        5.0f, -0.5f, 5.0f, 2.0f, 0.0f,
-        -5.0f, -0.5f, 5.0f, 0.0f, 0.0f,
-        -5.0f, -0.5f, -5.0f, 0.0f, 2.0f,
-
-        5.0f, -0.5f, 5.0f, 2.0f, 0.0f,
-        -5.0f, -0.5f, -5.0f, 0.0f, 2.0f,
-        5.0f, -0.5f, -5.0f, 2.0f, 2.0f};
-
-    VAO planeVAO = vao_create();
-    VBO planeVBO = vbo_create(GL_ARRAY_BUFFER, GL_STATIC_DRAW);
-
-    vbo_buffer(planeVBO, planeVertices, sizeof(planeVertices));
-    vao_attr(planeVAO, planeVBO, 0, 3, GL_FLOAT, 5 * sizeof(float), 0);
-    vao_attr(planeVAO, planeVBO, 1, 2, GL_FLOAT, 5 * sizeof(float), 3 * sizeof(float));
-
-    Texture2D *tex = load_texture("res/textures/metal.png", true, false);
-
-    use_shader(texture_shader);
-    set_int(texture_shader, "texture1", 0);
-    use_shader(pshader);
-    set_int(pshader, "DropTexture", 0);
+    //     5.0f, -0.5f, 5.0f, 2.0f, 0.0f,
+    //     -5.0f, -0.5f, -5.0f, 0.0f, 2.0f,
+    //     5.0f, -0.5f, -5.0f, 2.0f, 2.0f};
 
     float skyboxVertices[] = {
         // positions
@@ -203,8 +184,8 @@ int main()
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-    use_shader(skyboxShader);
-    set_int(skyboxShader, "skybox", 0);
+    // shader_use(skyboxShader);
+    // set_int(skyboxShader, "skybox", 0);
 
     ImVec4 clearColor = {0.2f, 0.3f, 0.4f, 1.00f};
     int num_particles = 1000;
@@ -228,16 +209,15 @@ int main()
         // -----------------
         process_input(window, deltaTime);
 
-        glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        gfx_render_prepare(gfx);
 
         imgui_start_frame();
 
         // Your ImGui code goes here
-        igColorEdit3("clear color", (float *)&clearColor, 0);
+        // igColorEdit3("clear color", (float *)&clearColor, 0);
 
-        imgui_treenode_particle("Create stars", num_particles, rainx, rainy, rainz, color, pshader, *create_particles);
-        imgui_treenode_particle("Create rain", num_particles, rainx, rainy, rainz, color, pshader, *create_particles);
+        // imgui_treenode_particle("Create stars", num_particles, rainx, rainy, rainz, color, pshader, *create_particles);
+        // imgui_treenode_particle("Create rain", num_particles, rainx, rainy, rainz, color, pshader, *create_particles);
 
         // Render ImGui
 
@@ -245,48 +225,50 @@ int main()
         // ------
 
         mat4s model = glms_mat4_identity();
-        mat4s view = get_view_matrix(c);
-        mat4s projection = glms_perspective(glm_rad(c->zoom), ((float)SCREEN_WIDTH / (float)SCREEN_HEIGHT), 0.1f, 100.0f);
+        gfx_render_quad_texture(gfx, TEXTURE_PLANE, VEC2S(10.0, 10.0), VEC2S(1.0, 0.0), VEC2S(0.0, 1.0), model);
 
-        use_shader(texture_shader);
-        set_mat4(texture_shader, "view", view);
-        set_mat4(texture_shader, "projection", projection);
-        set_mat4(texture_shader, "model", model);
+        // shader_use(texture_shader);
+        // set_mat4(texture_shader, "view", view);
+        // set_mat4(texture_shader, "projection", projection);
+        // set_mat4(texture_shader, "model", model);
 
-        vao_bind(planeVAO);
-        glActiveTexture(GL_TEXTURE0);
-        texture_bind(tex);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        glBindVertexArray(0);
-        glDepthFunc(GL_LEQUAL);
-        use_shader(skyboxShader);
+        
+
+        // vao_bind(planeVAO);
+        // glActiveTexture(GL_TEXTURE0);
+        // texture_bind(tex);
+        // glDrawArrays(GL_TRIANGLES, 0, 6);
+        // glBindVertexArray(0);
+
+        // glDepthFunc(GL_LEQUAL);
+        // shader_use(skyboxShader);
 
         // ... set view and projection matrix
-        set_mat4(skyboxShader, "view", glms_mat4_ins3(glms_mat4_pick3(view), GLMS_MAT4_IDENTITY));
-        set_mat4(skyboxShader, "projection", projection);
-        vao_bind(cubeVAO);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-        glDepthFunc(GL_LESS);
+        // set_mat4(skyboxShader, "view", glms_mat4_ins3(glms_mat4_pick3(view), GLMS_MAT4_IDENTITY));
+        // set_mat4(skyboxShader, "projection", projection);
+        // vao_bind(cubeVAO);
+        // glActiveTexture(GL_TEXTURE0);
+        // glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+        // glDrawArrays(GL_TRIANGLES, 0, 36);
+        // glBindVertexArray(0);
+        // glDepthFunc(GL_LESS);
 
-        for (unsigned int i = 0; i < particleSystemCount; ++i)
-        {
-            Shader sheet_s = particleSystems[i]->sheet_system.shader;
-            use_shader(sheet_s);
+        // for (unsigned int i = 0; i < particleSystemCount; ++i)
+        // {
+        //     Shader sheet_s = particleSystems[i]->sheet_system.shader;
+        //     shader_use(sheet_s);
 
-            set_mat4(sheet_s, "view", view);
-            set_mat4(sheet_s, "projection", projection);
-            set_mat4(sheet_s, "model", model);
-            update_particles(particleSystems[i], deltaTime);
-            use_shader(pshader);
-            set_mat4(pshader, "view", view);
-            set_mat4(pshader, "projection", projection);
-            set_vec3(pshader, "cameraRight", c->right);
-            set_vec3(pshader, "cameraFront", c->front);
-            draw_particle(particleSystems[i], pshader);
-        }
+        //     set_mat4(sheet_s, "view", view);
+        //     set_mat4(sheet_s, "projection", projection);
+        //     set_mat4(sheet_s, "model", model);
+        //     update_particles(particleSystems[i], deltaTime);
+        //     shader_use(pshader);
+        //     set_mat4(pshader, "view", view);
+        //     set_mat4(pshader, "projection", projection);
+        //     set_vec3(pshader, "cameraRight", c->right);
+        //     set_vec3(pshader, "cameraFront", c->front);
+        //     draw_particle(particleSystems[i], pshader);
+        // }
 
         imgui_render(window);
 
@@ -324,7 +306,7 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
 {
-    process_scroll(c, yoffset);
+    process_scroll(gfx->cam, yoffset);
 }
 
 void process_input(GLFWwindow *window, float delta)
@@ -332,15 +314,15 @@ void process_input(GLFWwindow *window, float delta)
     if (keys[GLFW_KEY_ESCAPE])
         glfwSetWindowShouldClose(window, true);
     if (keys[GLFW_KEY_W])
-        process_keyboard(c, FORWARD, delta);
+        process_keyboard(gfx->cam, FORWARD, delta);
     if (keys[GLFW_KEY_S])
-        process_keyboard(c, BACKWARD, delta);
+        process_keyboard(gfx->cam, BACKWARD, delta);
     if (keys[GLFW_KEY_A])
-        process_keyboard(c, LEFT, delta);
+        process_keyboard(gfx->cam, LEFT, delta);
     if (keys[GLFW_KEY_D])
-        process_keyboard(c, RIGHT, delta);
+        process_keyboard(gfx->cam, RIGHT, delta);
     if (keys[GLFW_KEY_LEFT_SHIFT])
-        process_keyboard(c, SHIFT, delta);
+        process_keyboard(gfx->cam, SHIFT, delta);
     if (keys[GLFW_KEY_TAB])
         toggle_mouse_capture(window);
 }
@@ -363,7 +345,7 @@ void mouse_callback(GLFWwindow *window, double xposIn, double yposIn)
     lastX = xpos;
     lastY = ypos;
 
-    process_mouse(c, xoffset, yoffset, true);
+    process_mouse(gfx->cam, xoffset, yoffset, true);
 }
 
 void toggle_mouse_capture(GLFWwindow *window)

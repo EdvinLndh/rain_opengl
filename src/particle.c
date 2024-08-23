@@ -76,7 +76,7 @@ ParticleSystem *particles_create(ParticleConfig *conf)
         .vao = vao_create(),
         .vbo = vbo_create(GL_ARRAY_BUFFER, GL_STATIC_DRAW),
         .instanceVBO = vbo_create(GL_ARRAY_BUFFER, GL_DYNAMIC_DRAW),
-        .shader = compile("shaders/sheetshader.vs", "shaders/sheetshader.fs", NULL),
+        .shader = shader_compile("shaders/sheetshader.vs", "shaders/sheetshader.fs", NULL),
     };
 
     float sheetVertexData[] = {
@@ -102,7 +102,7 @@ ParticleSystem *particles_create(ParticleConfig *conf)
     glVertexAttribDivisor(2, 1);
     glVertexAttribDivisor(3, 1);
 
-    use_shader(p->sheet_system.shader);
+    shader_use(p->sheet_system.shader);
     set_int(p->sheet_system.shader, "sheet", 0);
 
     return p;
@@ -123,7 +123,7 @@ void update_particles(ParticleSystem *p, float dt)
 
 void draw_particle(ParticleSystem *p, Shader shader)
 {
-    use_shader(shader);
+    shader_use(shader);
     vao_bind(p->vao);
     glActiveTexture(GL_TEXTURE0);
     texture_bind(p->tex);
@@ -165,7 +165,7 @@ static void update_rain(ParticleSystem *p, float dt)
 
 static void draw_splash(ParticleSystem *p)
 {
-    use_shader(p->sheet_system.shader);
+    shader_use(p->sheet_system.shader);
     vao_bind(p->sheet_system.vao);
     glActiveTexture(GL_TEXTURE0);
     texture_bind(p->sheet_system.sheet->tex);

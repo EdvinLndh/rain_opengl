@@ -5,12 +5,12 @@ static void checkGLError(const char *func);
 
 static char *load(const char *path);
 
-void use_shader(Shader shader)
+void shader_use(Shader shader)
 {
     glUseProgram(shader.ID);
 }
 
-Shader compile(const char *vertexSourcePath, const char *fragmentSourcePath, const char *geometrySourcePath)
+Shader shader_compile(const char *vertexSourcePath, const char *fragmentSourcePath, const char *geometrySourcePath)
 {
     unsigned int sVertex, sFragment, gShader;
     Shader shader;
