@@ -83,118 +83,26 @@ int main()
     float deltaTime = 0.0f;
     float lastFrame = 0.0f;
 
-    // c = camera_create();
     gfx = malloc(sizeof(GfxSystem));
     gfx_init(gfx);
     
-    // float planeVertices[] = {
-    //     // positions          // texture Coords (note we set these higher than 1 (together with GL_REPEAT as texture wrapping mode). this will cause the floor texture to repeat)
-    //     5.0f, -0.5f, 5.0f, 2.0f, 0.0f,
-    //     -5.0f, -0.5f, 5.0f, 0.0f, 0.0f,
-    //     -5.0f, -0.5f, -5.0f, 0.0f, 2.0f,
 
-    //     5.0f, -0.5f, 5.0f, 2.0f, 0.0f,
-    //     -5.0f, -0.5f, -5.0f, 0.0f, 2.0f,
-    //     5.0f, -0.5f, -5.0f, 2.0f, 2.0f};
+    // ImVec4 clearColor = {0.2f, 0.3f, 0.4f, 1.00f};
+    // int num_particles = 1000;
 
-    float skyboxVertices[] = {
-        // positions
-        -1.0f, 1.0f, -1.0f,
-        -1.0f, -1.0f, -1.0f,
-        1.0f, -1.0f, -1.0f,
-        1.0f, -1.0f, -1.0f,
-        1.0f, 1.0f, -1.0f,
-        -1.0f, 1.0f, -1.0f,
+    // float starx = 100.0f, stary = 200.0f, starz = 100.0f;
+    // float rainx = 30.0f, rainy = 40.0f, rainz = 30.0f;
 
-        -1.0f, -1.0f, 1.0f,
-        -1.0f, -1.0f, -1.0f,
-        -1.0f, 1.0f, -1.0f,
-        -1.0f, 1.0f, -1.0f,
-        -1.0f, 1.0f, 1.0f,
-        -1.0f, -1.0f, 1.0f,
-
-        1.0f, -1.0f, -1.0f,
-        1.0f, -1.0f, 1.0f,
-        1.0f, 1.0f, 1.0f,
-        1.0f, 1.0f, 1.0f,
-        1.0f, 1.0f, -1.0f,
-        1.0f, -1.0f, -1.0f,
-
-        -1.0f, -1.0f, 1.0f,
-        -1.0f, 1.0f, 1.0f,
-        1.0f, 1.0f, 1.0f,
-        1.0f, 1.0f, 1.0f,
-        1.0f, -1.0f, 1.0f,
-        -1.0f, -1.0f, 1.0f,
-
-        -1.0f, 1.0f, -1.0f,
-        1.0f, 1.0f, -1.0f,
-        1.0f, 1.0f, 1.0f,
-        1.0f, 1.0f, 1.0f,
-        -1.0f, 1.0f, 1.0f,
-        -1.0f, 1.0f, -1.0f,
-
-        -1.0f, -1.0f, -1.0f,
-        -1.0f, -1.0f, 1.0f,
-        1.0f, -1.0f, -1.0f,
-        1.0f, -1.0f, -1.0f,
-        -1.0f, -1.0f, 1.0f,
-        1.0f, -1.0f, 1.0f};
-
-    VAO cubeVAO = vao_create();
-    VBO cubeVBO = vbo_create(GL_ARRAY_BUFFER, GL_STATIC_DRAW);
-    vbo_buffer(cubeVBO, skyboxVertices, sizeof(skyboxVertices));
-
-    vao_attr(cubeVAO, cubeVBO, 0, 3, GL_FLOAT, 3 * sizeof(float), 0);
-
-    unsigned int textureID;
-    glGenTextures(1, &textureID);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-
-    char *texture_faces[] = {
-        "res/textures/posx.jpg",
-        "res/textures/negx.jpg",
-        "res/textures/posy.jpg",
-        "res/textures/negy.jpg",
-        "res/textures/posz.jpg",
-        "res/textures/negz.jpg"};
-    int width, height, nrChannels;
-    unsigned char *data;
-    for (unsigned int i = 0; i < (sizeof(texture_faces) / sizeof(char *)); i++)
-    {
-        data = stbi_load(texture_faces[i], &width, &height, &nrChannels, 0);
-        if (data)
-        {
-            glTexImage2D(
-                GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-                0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-
-            stbi_image_free(data);
-        }
-        else
-        {
-            fprintf(stderr, "Cubemap failed to load\n");
-            stbi_image_free(data);
-        }
-    }
-
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-    // shader_use(skyboxShader);
-    // set_int(skyboxShader, "skybox", 0);
-
-    ImVec4 clearColor = {0.2f, 0.3f, 0.4f, 1.00f};
-    int num_particles = 1000;
-
-    float starx = 100.0f, stary = 200.0f, starz = 100.0f;
-    float rainx = 30.0f, rainy = 40.0f, rainz = 30.0f;
-
-    vec4s color = VEC4S(0.72f, 0.78f, 0.0f, 1.0f);
-    int i = 1;
+    // vec4s color = VEC4S(0.72f, 0.78f, 0.0f, 1.0f);
+    // int i = 1;
+        create_particles(&(ParticleConfig) {
+            .num_particles = 1000,
+            .color = VEC4S(0.3f, 0.3f, 0.6f, 1.0f),
+            .type = RAIN,
+            .x = 20.0f, 
+            .y = 50.0f, 
+            .z = 20.0f,
+        });
 
     while (!glfwWindowShouldClose(window))
     {
@@ -219,56 +127,21 @@ int main()
         // imgui_treenode_particle("Create stars", num_particles, rainx, rainy, rainz, color, pshader, *create_particles);
         // imgui_treenode_particle("Create rain", num_particles, rainx, rainy, rainz, color, pshader, *create_particles);
 
+
+
         // Render ImGui
 
         // render
         // ------
 
         mat4s model = glms_mat4_identity();
-        gfx_render_quad_texture(gfx, TEXTURE_PLANE, VEC2S(10.0, 10.0), VEC2S(1.0, 0.0), VEC2S(0.0, 1.0), model);
+        gfx_render_quad_texture(gfx, TEXTURE_PLANE, VEC2S(10.0, 10.0), VEC2S(0.0, 0.0), VEC2S(1.0, 1.0), model);
 
-        // shader_use(texture_shader);
-        // set_mat4(texture_shader, "view", view);
-        // set_mat4(texture_shader, "projection", projection);
-        // set_mat4(texture_shader, "model", model);
-
-        
-
-        // vao_bind(planeVAO);
-        // glActiveTexture(GL_TEXTURE0);
-        // texture_bind(tex);
-        // glDrawArrays(GL_TRIANGLES, 0, 6);
-        // glBindVertexArray(0);
-
-        // glDepthFunc(GL_LEQUAL);
-        // shader_use(skyboxShader);
-
-        // ... set view and projection matrix
-        // set_mat4(skyboxShader, "view", glms_mat4_ins3(glms_mat4_pick3(view), GLMS_MAT4_IDENTITY));
-        // set_mat4(skyboxShader, "projection", projection);
-        // vao_bind(cubeVAO);
-        // glActiveTexture(GL_TEXTURE0);
-        // glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-        // glDrawArrays(GL_TRIANGLES, 0, 36);
-        // glBindVertexArray(0);
-        // glDepthFunc(GL_LESS);
-
-        // for (unsigned int i = 0; i < particleSystemCount; ++i)
-        // {
-        //     Shader sheet_s = particleSystems[i]->sheet_system.shader;
-        //     shader_use(sheet_s);
-
-        //     set_mat4(sheet_s, "view", view);
-        //     set_mat4(sheet_s, "projection", projection);
-        //     set_mat4(sheet_s, "model", model);
-        //     update_particles(particleSystems[i], deltaTime);
-        //     shader_use(pshader);
-        //     set_mat4(pshader, "view", view);
-        //     set_mat4(pshader, "projection", projection);
-        //     set_vec3(pshader, "cameraRight", c->right);
-        //     set_vec3(pshader, "cameraFront", c->front);
-        //     draw_particle(particleSystems[i], pshader);
-        // }
+        gfx_render_cubemap(gfx);
+        for (unsigned int i = 0; i < particleSystemCount; ++i)
+        {
+            gfx_render_particle(gfx, particleSystems[i], deltaTime);
+        }
 
         imgui_render(window);
 
@@ -276,9 +149,7 @@ int main()
         glfwPollEvents();
     }
 
-    // Cleanup
-    // Map
-    // GL objects (VBA, VAO..)
+
 
     glfwTerminate();
     imgui_cleanup();

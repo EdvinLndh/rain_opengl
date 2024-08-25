@@ -17,7 +17,7 @@ Camera *camera_create()
         perror("malloc");
         exit(EXIT_FAILURE);
     }
-    c->pos = VEC3S(0.0f, 0.0f, -3.0f);
+    c->pos = VEC3S(2.0f, 1.0f, 3.0f);
     c->up = VEC3S(0.0f, 1.0f, 0.0f);
     c->worldup = c->up;
     c->front = VEC3S(0.0f, 0.0f, -1.0f);

@@ -121,9 +121,8 @@ void update_particles(ParticleSystem *p, float dt)
     }
 }
 
-void draw_particle(ParticleSystem *p, Shader shader)
+void draw_particle(ParticleSystem *p)
 {
-    shader_use(shader);
     vao_bind(p->vao);
     glActiveTexture(GL_TEXTURE0);
     texture_bind(p->tex);
@@ -150,7 +149,6 @@ static void update_rain(ParticleSystem *p, float dt)
                 .elapsed_time = 0,
             };
             update_splash_instances(p, dt);
-
             draw_splash(p);
 
             // Reset drop position
@@ -165,7 +163,6 @@ static void update_rain(ParticleSystem *p, float dt)
 
 static void draw_splash(ParticleSystem *p)
 {
-    shader_use(p->sheet_system.shader);
     vao_bind(p->sheet_system.vao);
     glActiveTexture(GL_TEXTURE0);
     texture_bind(p->sheet_system.sheet->tex);
@@ -191,6 +188,7 @@ static void update_splash_instances(ParticleSystem *p, float dt)
                 instance->elapsed_time = 0.0f;
                 if (++instance->frame_index > 4)
                 {
+                    
                     instance = NULL;
                 }
             }

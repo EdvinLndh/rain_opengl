@@ -9,6 +9,7 @@
 
 #include "vao.h"
 #include "vbo.h"
+#include "particle.h"
 #include "shader.h"
 #include "util.h"
 #include "texture.h"
@@ -45,6 +46,7 @@ typedef struct GfxSytem {
     enum ShaderType current_shader; 
     Texture2D textures[TEXTURE_LAST + 1];
     TextureSheet sheets[SHEET_SPLASH + 1];
+    unsigned int cubeID;
 
     VAO vao;
     VBO vbo, ibo; 
@@ -66,4 +68,7 @@ void gfx_init(GfxSystem *g);
 void gfx_render_prepare(GfxSystem *g);
 void gfx_render_quad_texture(GfxSystem *g, enum TextureType tex, vec2s size, 
         vec2s uv_min, vec2s uv_max, mat4s model);
+
+void gfx_render_cubemap(GfxSystem *g);
+void gfx_render_particle(GfxSystem *g, ParticleSystem *p, float dt);
 #endif // !GFX_H

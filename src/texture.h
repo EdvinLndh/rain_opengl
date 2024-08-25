@@ -24,9 +24,11 @@ typedef struct TextureSheet {
     int sprite_w, sprite_h;
 } TextureSheet;
 
+
 // Texture2D texture_create_from_path(char *path);
   
 Texture2D* load_texture(const char *path, bool repeat, bool nearest);
+unsigned int load_cubemap(const char **paths);
 TextureSheet *load_texture_sheet(const char *path, int sprite_w, int sprite_h);
 
 void texture_bind(Texture2D *texture);

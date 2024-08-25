@@ -13,6 +13,8 @@
         "type_traits": "c",
         "utility": "c",
         "variant": "c",
-        "particle.h": "c"
+        "particle.h": "c",
+        "gfx.h": "c",
+        "sstream": "c"
     }
 }

@@ -58,7 +58,7 @@ void imgui_cleanup()
     igDestroyContext(NULL);
 }
 
-void imgui_treenode_particle(char *title, int num_particles, float rainx, float rainy, float rainz, vec4s color, Shader shader, ButtonCallback func) {
+void imgui_treenode_particle(char *title, int num_particles, float rainx, float rainy, float rainz, vec4s color, ButtonCallback func) {
        if (igTreeNode_Str(title))
         {
 
@@ -80,7 +80,6 @@ void imgui_treenode_particle(char *title, int num_particles, float rainx, float 
                 .y = rainy,
                 .z = rainz,
                 .color = color,
-                .shader = shader,
                 .type = RAIN,
             };
 

@@ -28,7 +28,7 @@ Texture2D *load_texture(const char *path, bool repeat, bool nearest)
             format = GL_RGB;
         else if (nr_ch == 4)
             format = GL_RGBA;
-        
+
         texture->Internal_Format = format;
         texture->Image_Format = format;
     }
@@ -37,7 +37,45 @@ Texture2D *load_texture(const char *path, bool repeat, bool nearest)
     return texture;
 }
 
-TextureSheet *load_texture_sheet(const char *path, int sprite_w, int sprite_h) {
+unsigned int load_cubemap(const char **paths)
+{
+
+    unsigned int cubeID;
+    glGenTextures(1, &cubeID);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, cubeID);
+
+    int width, height, nrChannels;
+    unsigned char *data;
+
+    for (int i = 0; i < 6; i++)
+    {
+        data = stbi_load(paths[i], &width, &height, &nrChannels, 0);
+        if (data)
+        {
+            glTexImage2D(
+                GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+
+            stbi_image_free(data);
+        }
+        else
+        {
+            fprintf(stderr, "Cubemap failed to load\n");
+            stbi_image_free(data);
+        }
+    }
+
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    return cubeID;
+}
+
+TextureSheet *load_texture_sheet(const char *path, int sprite_w, int sprite_h)
+{
     TextureSheet *s = malloc(sizeof(TextureSheet));
     s->tex = load_texture(path, false, true);
     s->sprite_w = sprite_w;
@@ -67,7 +105,6 @@ void texture_bind(Texture2D *texture)
     glBindTexture(GL_TEXTURE_2D, texture->ID);
 }
 
-
 static Texture2D *create_texture(bool repeat, bool nearest)
 {
     Texture2D *texture = malloc(sizeof(Texture2D));
@@ -77,11 +114,10 @@ static Texture2D *create_texture(bool repeat, bool nearest)
     texture->Wrap_T = repeat ? GL_REPEAT : GL_CLAMP_TO_EDGE;
     texture->Filter_Min = nearest ? GL_NEAREST : GL_LINEAR;
     texture->Filter_Max = nearest ? GL_NEAREST : GL_LINEAR;
-    texture->Internal_Format = 0; 
-    texture->Image_Format = 0; 
+    texture->Internal_Format = 0;
+    texture->Image_Format = 0;
 
     glGenTextures(1, &(texture->ID));
 
     return texture;
 }
-

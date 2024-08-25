@@ -40,7 +40,6 @@ typedef struct ParticleConfig
     float x, y, z;
     vec4s color;
     enum ParticleType type;
-    Shader shader;
 } ParticleConfig;
 
 typedef struct TextureSheetSystem {
@@ -69,6 +68,6 @@ ParticleSystem *particles_create(ParticleConfig *conf);
 
 void update_particles(ParticleSystem *p, float dt);
 
-void draw_particle(ParticleSystem *p, Shader shader);
+void draw_particle(ParticleSystem *p);
 
 #endif // !PARTICLE_H

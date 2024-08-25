@@ -10,9 +10,6 @@ out vec4 FragColor;
 const int NUM_SPRITES = 4;
 
 void main(void) {
-    // vec2 pos = vec2(sprite_idx % int(SPRITE_COLUMNS), int(sprite_idx / SPRITE_COLUMNS));
-    // FragColor = texture(sheet, vec2((TexCoords.x / SPRITE_COLUMNS) + pos.x * (1.0 / SPRITE_COLUMNS),
-    //     (TexCoords.y / SPRITE_ROWS) + pos.y * (1.0 / SPRITE_ROWS)));
 
     // Calculate sprite width in texture coordinates
     float spriteWidth = 1.0 / float(NUM_SPRITES);
