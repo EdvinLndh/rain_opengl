@@ -23,3 +23,17 @@ At first I did a billboarding technique which rotated around all axes, which is 
 After I while I got it to work only rotating around the XZ axes, and is what I want for now, if wind is added, I might have to change this, so it can rotate around other axes as well. It was very difficult for me to figure out what vectors and directions to use, even though these are quite simple problems really. Got me feeling a bit sad. With ChatGPT it was solved without any issues however. I did take some time to try without, but I got very frustrated and just felt like I made no progress.
 
 I will now try to get the rain moving, which can probably get interesting. 
+
+
+
+### Backlog
+- [x] Make Rain follow the player
+
+- [ ] AABB
+- [ ] Distance Fog
+- [ ] Color gradients
+- [ ] New BG
+- [ ] Dirt ground
+- [ ] Maybe some tree objects?
+
+

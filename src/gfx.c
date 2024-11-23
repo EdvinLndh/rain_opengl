@@ -1,5 +1,7 @@
 #include "gfx.h"
 
+#include "global.h"
+
 static void use_shader(GfxSystem *g, enum ShaderType shader);
 static void set_view_projection(GfxSystem *g, Shader s, bool cubemap);
 
@@ -59,7 +61,7 @@ static void set_view_projection(GfxSystem *g, Shader s, bool cubemap)
     mat4s view = get_view_matrix(g->cam);
     set_mat4(s, "view", cubemap ? glms_mat4_ins3(glms_mat4_pick3(view), GLMS_MAT4_IDENTITY) : view);
 
-    set_mat4(s, "projection", glms_perspective(glm_rad(g->cam->zoom), ((float)800 / (float)600), 0.1f, 100.0f));
+    set_mat4(s, "projection", glms_perspective(glm_rad(g->cam->zoom), ((float)state.window->size.x / (float)state.window->size.y), 0.1f, 100.0f));
 }
 
 void gfx_render_quad_texture(GfxSystem *g, enum TextureType tex, vec2s size,
@@ -130,6 +132,7 @@ void gfx_render_cubemap(GfxSystem *g)
     glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void *)0);
     glBindVertexArray(0);
     glDepthFunc(GL_LESS);
+
 }
 
 void gfx_render_particle(GfxSystem *g, ParticleSystem *p, float dt)
@@ -138,9 +141,9 @@ void gfx_render_particle(GfxSystem *g, ParticleSystem *p, float dt)
     use_shader(g, SHADER_SHEET);
     Shader s = g->shaders[g->current_shader];
     set_view_projection(g, s, false);
-    mat4s model = glms_mat4_identity();
-    set_mat4(s, "model", model);
-    update_particles(p, dt);
+    set_vec3(s, "cameraRight", g->cam->right);
+    set_vec3(s, "cameraFront", g->cam->front);
+    update_particles(p, dt, VEC2S(g->cam->pos.x, g->cam->pos.z));
 
 
 

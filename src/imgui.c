@@ -76,9 +76,7 @@ void imgui_treenode_particle(char *title, int num_particles, float rainx, float 
             }
             *config = (ParticleConfig){
                 .num_particles = num_particles,
-                .x = rainx,
-                .y = rainy,
-                .z = rainz,
+                .cam_rad = VEC3S(rainx, rainy, rainz),
                 .color = color,
                 .type = RAIN,
             };

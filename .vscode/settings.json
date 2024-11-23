@@ -15,6 +15,12 @@
         "variant": "c",
         "particle.h": "c",
         "gfx.h": "c",
-        "sstream": "c"
-    }
+        "sstream": "c",
+        "imgui.h": "c",
+        "stdlib.h": "c",
+        "al.h": "c",
+        "almixer.h": "c",
+        "assert.h": "c"
+    },
+    "cmake.sourceDirectory": "/home/edvin/Documents/code/opengl/rain/external/cglm"
 }

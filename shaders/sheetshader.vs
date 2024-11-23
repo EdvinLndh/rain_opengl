@@ -7,7 +7,8 @@ layout (location = 3) in int aFrameIndex;
 out vec2 TexCoords;
 flat out int frameIndex;
 
-uniform mat4 model;
+uniform vec3 cameraRight; 
+uniform vec3 cameraFront; 
 uniform mat4 view;
 uniform mat4 projection;
 
@@ -15,5 +16,8 @@ void main()
 {
 	TexCoords = aTexCoords;
     frameIndex = aFrameIndex;
-	gl_Position = projection * view * model * vec4(aPos + aInstancePos, 1.0);
+    vec3 worldPosition = aInstancePos + (cameraRight * aPos.x) + (cameraFront * aPos.z)+ vec3(0.0, aPos.y, 0.0);
+
+    // Convert world position to clip space
+    gl_Position = projection * view * vec4(worldPosition, 1.0);
 }

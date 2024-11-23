@@ -1,8 +1,11 @@
 #include "particle.h"
 
+#include "math.h"
+
 static void update_splash_instances(ParticleSystem *p, float dt);
-static void update_rain(ParticleSystem *p, float dt);
+static void update_rain(ParticleSystem *p, float dt, vec2s cam_pos);
 static void draw_splash(ParticleSystem *p);
+static void gen_positions(ParticleSystem *p, int index, vec2s cam_offset);
 
 ParticleSystem *particles_create(ParticleConfig *conf)
 {
@@ -22,38 +25,24 @@ ParticleSystem *particles_create(ParticleConfig *conf)
         free(p);
         return NULL;
     }
-    vec3s *offsets = calloc(conf->num_particles, sizeof(vec3s));
-    for (unsigned int i = 0; i < conf->num_particles; ++i)
-    {
-        float x = (((float)rand() / RAND_MAX) * conf->x * 2) - conf->x;
-        float y = (((float)rand() / RAND_MAX) * conf->y * 2) + 5.0f;
-        float z = (((float)rand() / RAND_MAX) * conf->z * 2) - conf->z;
 
-        offsets[i] = VEC3S(x, y, z);
-
-        Particle particle = (Particle){
-            .pos = VEC3S(conf->x, conf->y, conf->z),
-            .life = 0.0f,
-            .velocity = VEC3S(0.0f, -1.0f, 0.0f),
-            .color = conf->color};
-        p->particles[i] = particle;
-    }
-    p->offsets = offsets;
+    p->offsets = calloc(conf->num_particles, sizeof(vec3s));
+    gen_positions(p, -1, VEC2S(0, 0));
 
     // Instanced array
     VBO instanceVBO = vbo_create(GL_ARRAY_BUFFER, GL_DYNAMIC_DRAW);
-    vbo_buffer(instanceVBO, offsets, sizeof(vec3s) * conf->num_particles);
+    vbo_buffer(instanceVBO, p->offsets, sizeof(vec3s) * conf->num_particles);
     p->instanceVBO = instanceVBO;
 
     float vertexData[] = {
         // positions        // colors              // texture coords
-        -0.1f, -0.3f, 0.0f, conf->color.x, conf->color.y, conf->color.z, conf->color.w, 1.0f, 1.0f, // Bottom-left
-        0.1f, -0.3f, 0.0f, conf->color.x, conf->color.y, conf->color.z, conf->color.w, 0.0f, 1.0f,  // Bottom-right
-        0.1f, 0.3f, 0.0f, conf->color.x, conf->color.y, conf->color.z, conf->color.w, 0.0f, 0.0f,   // Top-right
+        -0.08f, -0.4f, 0.0f, conf->color.x, conf->color.y, conf->color.z, conf->color.w, 1.0f, 1.0f, // Bottom-left
+        0.08f, -0.4f, 0.0f, conf->color.x, conf->color.y, conf->color.z, conf->color.w, 0.0f, 1.0f,  // Bottom-right
+        0.08f, 0.4f, 0.0f, conf->color.x, conf->color.y, conf->color.z, conf->color.w, 0.0f, 0.0f,   // Top-right
 
-        -0.1f, -0.3f, 0.0f, conf->color.x, conf->color.y, conf->color.z, conf->color.w, 1.0f, 1.0f, // Bottom-left
-        0.1f, 0.3f, 0.0f, conf->color.x, conf->color.y, conf->color.z, conf->color.w, 0.0f, 0.0f,   // Top-right
-        -0.1f, 0.3f, 0.0f, conf->color.x, conf->color.y, conf->color.z, conf->color.w, 1.0f, 0.0f   // Top-left
+        -0.08f, -0.4f, 0.0f, conf->color.x, conf->color.y, conf->color.z, conf->color.w, 1.0f, 1.0f, // Bottom-left
+        0.08f, 0.4f, 0.0f, conf->color.x, conf->color.y, conf->color.z, conf->color.w, 0.0f, 0.0f,   // Top-right
+        -0.08f, 0.4f, 0.0f, conf->color.x, conf->color.y, conf->color.z, conf->color.w, 1.0f, 0.0f   // Top-left
     };
 
     p->tex = load_texture("res/textures/drop.png", true, false);
@@ -108,13 +97,41 @@ ParticleSystem *particles_create(ParticleConfig *conf)
     return p;
 }
 
-void update_particles(ParticleSystem *p, float dt)
+static void gen_positions(ParticleSystem *p, int index, vec2s cam_offset)
 {
 
+    if (index >= 0) {
+        vec3s *offset = &p->offsets[index]; 
+        float x = (((float)rand() / RAND_MAX) * p->conf->cam_rad.x * 2) - p->conf->cam_rad.x;
+        float z = (((float)rand() / RAND_MAX) * p->conf->cam_rad.z * 2) - p->conf->cam_rad.z;
+        offset->x = (x + cam_offset.x); 
+        offset->z = z + cam_offset.y;
+        return;
+    }
+
+    for (unsigned int i = 0; i < p->conf->num_particles; ++i)
+    {
+        float x = (((float)rand() / RAND_MAX) * p->conf->cam_rad.x * 2) - p->conf->cam_rad.x;
+        float y = (((float)rand() / RAND_MAX) * p->conf->cam_rad.y * 2) + 5.0f;
+        float z = (((float)rand() / RAND_MAX) * p->conf->cam_rad.z * 2) - p->conf->cam_rad.z;
+
+        p->offsets[i] = VEC3S(x, y, z);
+
+        Particle particle = (Particle){
+            .pos = VEC3S(p->conf->cam_rad.x, p->conf->cam_rad.y, p->conf->cam_rad.z),
+            .life = 0.0f,
+            .velocity = VEC3S(0.0f, -(((float)rand() / RAND_MAX) * 5 + 13), 0.0f),
+            .color = p->conf->color};
+        p->particles[i] = particle;
+    }
+}
+
+void update_particles(ParticleSystem *p, float dt, vec2s cam_pos)
+{
     switch (p->conf->type)
     {
     case RAIN:
-        update_rain(p, dt);
+        update_rain(p, dt, cam_pos);
         break;
     default:
         break;
@@ -131,20 +148,19 @@ void draw_particle(ParticleSystem *p)
 }
 
 static float elapsed_time = 0.0f;
-static void update_rain(ParticleSystem *p, float dt)
+static void update_rain(ParticleSystem *p, float dt, vec2s cam_pos)
 {
-
     elapsed_time += dt;
     for (unsigned int i = 0; i < p->conf->num_particles; i++)
     {
-        vec3s offset = p->offsets[i];
-        offset.y += (-15.2f * dt);
-        if (offset.y <= -1.0f)
+        vec3s *offset = &p->offsets[i];
+        offset->y += (p->particles[i].velocity.y * dt);
+        if (offset->y <= -1.0f)
         {
             // Play splash effect
             p->sheet_system.instances[i] = (SplashInstance){
                 .frame_index = 1,
-                .position = offset,
+                .position = *offset,
                 .active = true,
                 .elapsed_time = 0,
             };
@@ -152,9 +168,10 @@ static void update_rain(ParticleSystem *p, float dt)
             draw_splash(p);
 
             // Reset drop position
-            offset.y = p->conf->y;
+            offset->y = p->conf->cam_rad.y;
+
+            gen_positions(p, i, VEC2S(cam_pos.x, cam_pos.y));
         }
-        p->offsets[i] = offset;
     }
     vbo_bind(p->instanceVBO);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vec3s) * p->conf->num_particles, p->offsets);
@@ -174,8 +191,8 @@ static void draw_splash(ParticleSystem *p)
 
 static void update_splash_instances(ParticleSystem *p, float dt)
 {
-    float frame_duration = 0.3f;
-    // MB fix more efficient loop in future.
+    float frame_duration = 0.2f;
+    // fix more efficient loop in future.
     for (unsigned int i = 0; i < p->conf->num_particles; ++i)
     {
         SplashInstance *instance = &p->sheet_system.instances[i];
@@ -188,17 +205,15 @@ static void update_splash_instances(ParticleSystem *p, float dt)
                 instance->elapsed_time = 0.0f;
                 if (++instance->frame_index > 4)
                 {
-                    
+
                     instance = NULL;
                 }
             }
             else
                 continue;
-
-            // Upload the updated instance data to the GPU
-            vbo_bind(p->sheet_system.instanceVBO);
-            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(SplashInstance) * p->conf->num_particles, p->sheet_system.instances);
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
     }
+    vbo_bind(p->sheet_system.instanceVBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(SplashInstance) * p->conf->num_particles, p->sheet_system.instances);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }

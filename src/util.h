@@ -5,4 +5,6 @@
 #define VEC4S(x, y, z, a) ((vec4s) {{x, y, z, a}})
 #define RANDOM_COLOR() \
     (vec4s) {{ (float)rand() / RAND_MAX, (float)rand() / RAND_MAX, (float)rand() / RAND_MAX, 1.0f }}
+
+
 #endif

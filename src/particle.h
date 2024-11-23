@@ -37,7 +37,7 @@ typedef struct Particle
 typedef struct ParticleConfig
 {
     unsigned int num_particles;
-    float x, y, z;
+    vec3s cam_rad;
     vec4s color;
     enum ParticleType type;
 } ParticleConfig;
@@ -66,7 +66,7 @@ typedef struct ParticleSystem
 
 ParticleSystem *particles_create(ParticleConfig *conf);
 
-void update_particles(ParticleSystem *p, float dt);
+void update_particles(ParticleSystem *p, float dt, vec2s cam_pos);
 
 void draw_particle(ParticleSystem *p);
 

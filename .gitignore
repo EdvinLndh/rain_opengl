@@ -1,0 +1,6 @@
+obj/ 
+out/ 
+external/
+.vscode/
+imgui.ini
+notes.md

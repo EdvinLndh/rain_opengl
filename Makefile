@@ -1,9 +1,9 @@
 # Compiler and flags
 CC = gcc
 CXX = g++
-CFLAGS = -Wall -Wextra -I../external/cglm/include -I../external/glad -I../external/stb -I/usr/local/include/freetype2 -I/usr/local/include/libpng16 -I/usr/local/include/cimgui
+CFLAGS = -Wall -Wextra -I../external/cglm/include -I../external/glad -I../external/stb -I/usr/local/include/freetype2 -I/usr/local/include/libpng16 -I/usr/local/include/cimgui -I/usr/local/include/SDL2 -I/usr/local/include/ALmixer
 CXXFLAGS = $(CFLAGS)
-LDFLAGS = -lGL -lglfw3 -ldl -lm  -lfreetype -lcimgui
+LDFLAGS = -lGL -lglfw3 -ldl -lm  -lfreetype -lcimgui -lALmixer 
 
 # Directories
 SRCDIR = src
@@ -52,3 +52,5 @@ clean:
 	rm -rf $(OBJDIR)/*.o $(TARGET)
 
 .PHONY: all clean
+
+
