@@ -3,13 +3,7 @@
 #include <GLFW/glfw3.h>
 #include <stdbool.h>
 
-#include "imgui.h"
 #include "audio.h"
-#include "camera.h"
-#include "vao.h"
-#include "vbo.h"
-#include "shader.h"
-#include "texture.h"
 #include "global.h"
 #include "gfx.h"
 #include "particle.h"
@@ -22,11 +16,10 @@ void mouse_callback(GLFWwindow *window, double xposIn, double yposIn);
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 void process_input(GLFWwindow *window, float delta);
 void update_rain();
-void create_particles();
+void create_particles(ParticleConfig *cfg);
 
 void toggle_mouse_capture(GLFWwindow *window);
 
-// Camera *c = NULL;
 
 ParticleSystem **particleSystems = NULL; 
 unsigned int particleSystemCount = 0;    
@@ -40,7 +33,7 @@ int main()
     state.window = &window;
     window_init();
     audio_init();
-    ALmixer_Data *rain = audio_open("res/audio/light_rain.ogg");
+    Audio_t *rain = audio_open("res/audio/light_rain.ogg");
     audio_start(rain);
     // imgui_init(state.window->handle, "#version 130");
 
@@ -94,7 +87,7 @@ int main()
 
     glfwTerminate();
     // imgui_cleanup();
-    audio_kill();
+    audio_kill(rain);
     return 0;
 }
 

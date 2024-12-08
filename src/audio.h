@@ -21,6 +21,7 @@ typedef struct Audio_t{
 void audio_init();
 Audio_t* audio_open(char* file);
 void audio_start(Audio_t *a); 
-void audio_stop();
+void audio_pause(Audio_t *a);
+void audio_kill(Audio_t *a);
 
 #endif // !AUDIO_H

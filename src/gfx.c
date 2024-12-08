@@ -1,6 +1,7 @@
 #include "gfx.h"
 
 #include "global.h"
+#include "vbo.h"
 
 static void use_shader(GfxSystem *g, enum ShaderType shader);
 static void set_view_projection(GfxSystem *g, Shader s, bool cubemap);
@@ -9,10 +10,10 @@ void gfx_init(GfxSystem *g)
 {
     g->cam = camera_create();
 
-    g->shaders[SHADER_TEXTURE] = shader_compile("shaders/textureshader.vs", "shaders/textureshader.fs", NULL);
-    g->shaders[SHADER_SHEET] = shader_compile("shaders/sheetshader.vs", "shaders/sheetshader.fs", NULL);
-    g->shaders[SHADER_SKY] = shader_compile("shaders/skyshader.vs", "shaders/skyshader.fs", NULL);
-    g->shaders[SHADER_PARTICLE] = shader_compile("shaders/particleshader.vs", "shaders/particleshader.fs", NULL);
+    g->shaders[SHADER_TEXTURE] = shader_compile("shaders/textureshader.vert", "shaders/textureshader.frag", NULL);
+    g->shaders[SHADER_SHEET] = shader_compile("shaders/sheetshader.vert", "shaders/sheetshader.frag", NULL);
+    g->shaders[SHADER_SKY] = shader_compile("shaders/skyshader.vert", "shaders/skyshader.frag", NULL);
+    g->shaders[SHADER_PARTICLE] = shader_compile("shaders/particleshader.vert", "shaders/particleshader.frag", NULL);
 
     g->textures[TEXTURE_RAIN] = *load_texture("res/textures/drop.png", true, false);
     g->textures[TEXTURE_PLANE] = *load_texture("res/textures/metal.png", true, false);
@@ -135,6 +136,13 @@ void gfx_render_cubemap(GfxSystem *g)
 
 }
 
+
+// void gfx_render_fog(GfxSystem *g, float fog_factor) {
+//     float fogColor[4] = {0.5, 0.5, 0.5, 1.0};
+//
+//
+// }
+
 void gfx_render_particle(GfxSystem *g, ParticleSystem *p, float dt)
 {
 
@@ -153,4 +161,20 @@ void gfx_render_particle(GfxSystem *g, ParticleSystem *p, float dt)
     set_vec3(s, "cameraRight", g->cam->right);
     set_vec3(s, "cameraFront", g->cam->front);
     draw_particle(p);
+}
+
+static void set_heightmap_ibo(GfxSystem *g, HeightMap *hm) {
+    vbo_buffer(g->vbo, hm->vertices, sizeof(vec3s) * hm->rows * hm->cols);
+    for (int i  = 0; i < hm->rows; i++) {
+        for (int j = 0; j < hm->cols; j++) {
+            int r = i + k;
+        }
+
+    }
+}
+
+void gfx_render_heightmap(GfxSystem *g, HeightMap *hm) {
+    
+
+
 }

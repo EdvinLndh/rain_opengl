@@ -7,6 +7,7 @@
 #include <cglm/types-struct.h>
 #include <string.h>
 
+#include "Heightmap.h"
 #include "vao.h"
 #include "vbo.h"
 #include "particle.h"
@@ -70,5 +71,7 @@ void gfx_render_quad_texture(GfxSystem *g, enum TextureType tex, vec2s size,
         vec2s uv_min, vec2s uv_max, mat4s model);
 
 void gfx_render_cubemap(GfxSystem *g);
+void gfx_render_heightmap(GfxSystem *g, HeightMap *hm);
+// void gfx_render_fog(GfxSystem *g);
 void gfx_render_particle(GfxSystem *g, ParticleSystem *p, float dt);
 #endif // !GFX_H

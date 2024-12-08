@@ -1,6 +1,7 @@
 # Compiler and flags
 CC = gcc
 CXX = g++
+BEAR = bear
 CFLAGS = -Wall -Wextra -I../external/cglm/include -I../external/glad -I../external/stb -I/usr/local/include/freetype2 -I/usr/local/include/libpng16 -I/usr/local/include/cimgui -I/usr/local/include/SDL2 -I/usr/local/include/ALmixer
 CXXFLAGS = $(CFLAGS)
 LDFLAGS = -lGL -lglfw3 -ldl -lm  -lfreetype -lcimgui -lALmixer 
@@ -45,7 +46,7 @@ $(OBJDIR)/stb_image.o: $(STBDIR)/stb_image.c
 	$(CXX) $(CXXFLAGS) -c -g -o $@ $<
 
 $(OBJDIR)/main.o: $(SRCDIR)/main.c
-	$(CC) $(CFLAGS) -c -g -o $@ $<
+	$(bear) $(CC) $(CFLAGS) -c -g -o $@ $<
 
 # Clean up build files
 clean:

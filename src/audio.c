@@ -1,4 +1,5 @@
 #include "audio.h"
+#include <ALmixer/ALmixer.h>
 
 void audio_init() {
   ALmixer_Init(ALMIXER_DEFAULT_FREQUENCY, ALMIXER_DEFAULT_NUM_SOURCES,
@@ -22,6 +23,10 @@ Audio_t *audio_open(char *path) {
 
 void audio_start(Audio_t *a) { ALmixer_PlayChannel(a->channel, a->data, 0); }
 
-void audio_stop(Audio_t *a) { ALmixer_PauseChannel(a->channel); }
+void audio_pause(Audio_t *a) { ALmixer_PauseChannel(a->channel); }
 
-void audio_kill() {}
+void audio_kill(Audio_t *a) {
+    ALmixer_HaltChannel(a->channel);
+  ALmixer_FreeData(a->data);
+  free(a);
+}

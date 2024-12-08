@@ -1,7 +1,5 @@
 #include "particle.h"
 
-#include "math.h"
-
 static void update_splash_instances(ParticleSystem *p, float dt);
 static void update_rain(ParticleSystem *p, float dt, vec2s cam_pos);
 static void draw_splash(ParticleSystem *p);
@@ -65,7 +63,7 @@ ParticleSystem *particles_create(ParticleConfig *conf)
         .vao = vao_create(),
         .vbo = vbo_create(GL_ARRAY_BUFFER, GL_STATIC_DRAW),
         .instanceVBO = vbo_create(GL_ARRAY_BUFFER, GL_DYNAMIC_DRAW),
-        .shader = shader_compile("shaders/sheetshader.vs", "shaders/sheetshader.fs", NULL),
+        .shader = shader_compile("shaders/sheetshader.vert", "shaders/sheetshader.frag", NULL),
     };
 
     float sheetVertexData[] = {
